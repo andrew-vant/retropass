@@ -1,0 +1,85 @@
+id	bit_offset	bit_width	group	requires	forbids	order	desc
+taken_marumari	0	1	Taken	has_marumari			Maru Mari (Taken)
+missile	1	1	Missiles				Missile Container (Brinstar)
+door_longbeam	2	1	Doors				Door Opened (Long Beam)
+door_bridge	3	1	Doors	statue_kraid&statue_ridley			Door Opened (Tourian Bridge)
+tank	4	1	Energy Tanks				Energy Tank (Brinstar)
+door_bombs	5	1	Doors				Door Opened (Bombs)
+taken_bombs	6	1	Taken	has_bombs&door_bombs			Bombs (Taken)
+door_ice1	7	1	Doors				Door Opened (Ice Beam - Brinstar)
+missile	8	1	Missiles				Missile Container (Brinstar)
+tank	9	1	Energy Tanks				Energy Tank (Brinstar)
+door_varia	10	1	Doors				Door Opened (Varia)
+taken_varia	11	1	Taken	has_varia&door_varia			Varia (Taken)
+tank	12	1	Energy Tanks				Energy Tank (Brinstar)
+missile	13	1	Missiles				Missile Container (Norfair)
+missile	14	1	Missiles				Missile Container (Norfair)
+door_ice2	15	1	Doors				Door Opened (Ice Beam - Norfair)
+missile	16	1	Missiles				Missile Container (Norfair)
+missile	17	1	Missiles				Missile Container (Norfair)
+missile	18	1	Missiles				Missile Container (Norfair)
+missile	19	1	Missiles				Missile Container (Norfair)
+missile	20	1	Missiles				Missile Container (Norfair)
+missile	21	1	Missiles				Missile Container (Norfair)
+missile	22	1	Missiles				Missile Container (Norfair)
+door_boots	23	1	Doors				Door Opened (High Jump Boots)
+taken_boots	24	1	Taken				High Jump Boots (Taken)
+door_screw	25	1	Doors				Door Opened (Screw Attack)
+taken_screw	26	1	Taken				Screw Attack Taken
+missile	27	1	Missiles				Missile Container (Norfair)
+missile	28	1	Missiles				Missile Container (Norfair)
+door_wave	29	1	Doors				Door Opened (Wave Beam)
+tank	30	1	Energy Tanks				Energy Tank (Norfair)
+missile	31	1	Missiles				Missile Container (Norfair)
+door_kraid1	32	1	Doors				Door Opened (Kraid's Lair)
+missile	33	1	Missiles				Missile Container (Kraid's Lair)
+missile	34	1	Missiles				Missile Container (Kraid's Lair)
+door_kraid2	35	1	Doors				Door Opened (Kraid's Lair)
+tank	36	1	Energy Tanks				Energy Tank (Kraid's Lair)
+door_kraid3	37	1	Doors				Door Opened (Kraid's Lair)
+door_kraid4	38	1	Doors				Door Opened (Kraid's Lair)
+missile	39	1	Missiles				Missile Container (Kraid's Lair)
+missile	40	1	Missiles				Missile Container (Kraid's Lair)
+door_kraid	41	1	Doors				Door Opened (Kraid's Room)
+tank	42	1	Energy Tanks				Energy Tank (Kraid's Room)
+missile	43	1	Missiles				Missile Container (Ridley's Lair)
+door_ridley1	44	1	Doors				Door Opened (Ridley's Lair)
+tank	45	1	Energy Tanks				Energy Tank (Ridley's Lair)
+missile	46	1	Missiles				Missile Container (Ridley's Lair)
+door_ridley	47	1	Doors				Door Opened (Ridley's Room)
+tank	48	1	Energy Tanks				Energy Tank (Behind Ridley)
+missile	49	1	Missiles				Missile Container (Ridley's Lair)
+door_tourian	50	1	Doors				Door Opened (Tourian)
+door_tourian	51	1	Doors				Door Opened (Tourian)
+door_tourian	52	1	Doors				Door Opened (Tourian)
+zebetite	53	1	Enemies				Zebetite 1 Destroyed
+zebetite	54	1	Enemies				Zebetite 2 Destroyed
+zebetite	55	1	Enemies				Zebetite 3 Destroyed
+zebetite	56	1	Enemies				Zebetite 4 Destroyed
+zebetite	57	1	Enemies				Zebetite 5 Destroyed
+mb	58	1	Enemies				Mother Brain Killed
+unknown1	59	1	Unknown				Unknown 1
+unknown2	60	1	Unknown				Unknown 2
+unknown3	61	1	Unknown				Unknown 3
+unknown4	62	1	Unknown				Unknown 4
+unknown5	63	1	Unknown				Unknown 5
+area	64	4	Misc				Start Location
+unknown6	68	1	Unknown				Unknown 6
+unknown7	69	1	Unknown				Unknown 7
+unknown8	70	1	Unknown				Unknown 8
+unarmored	71	1					Samus Unarmored
+has_bombs	72	1	Powerups				Bombs (Enabled)
+has_boots	73	1	Powerups				High Jump Boots (Enabled)
+has_longbeam	74	1	Powerups				Long Beam (Enabled)
+has_screw	75	1	Powerups				Screw Attack (Enabled)
+has_marumari	76	1	Powerups				Maru Mari (Enabled)
+has_varia	77	1	Powerups				Varia (Enabled)
+has_wave	78	1	Powerups				Wave Beam (Enabled)
+has_ice	79	1	Powerups				Ice Beam (Enabled)
+missiles	80	8	Misc				Missile Count
+clock	88	32	Misc				Elapsed Time in Frames
+unknown9	120	4	Unknown				Unknown 9
+ridley_dead	124	1	Enemies				Ridley Dead
+ridley_statue	125	1	Enemies				Ridley Statue Raised
+kraid_dead	126	1	Enemies				Kraid Dead
+kraid_statue	127	1	Enemies				Kraid Statue Raised
