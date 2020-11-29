@@ -34,4 +34,5 @@ setup(name='retropass',
       keywords="rom roms nes",
       url="https://github.com/andrew-vant/retropass",
       test_suite='tests',
+      entry_points={"console_scripts": ["retropass = retropass.cli:main"]},
       )
