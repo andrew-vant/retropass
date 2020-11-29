@@ -117,7 +117,7 @@ class Password(Sequence):
         if self.msb0:
             return idx
         elif isinstance(idx, int):
-            return flip_bitorder(idx)
+            return flip_idx_bitorder(idx)
         elif isinstance(idx, slice):
             return flip_slice_bitorder(idx)
         else:
@@ -164,7 +164,7 @@ class Password(Sequence):
 
 def flip_idx_bitorder(index):
     """ Helper for turning lsb0 indexes to msb0 indexes, or vice-versa """
-    start_of_byte = index // 8
+    start_of_byte = index // 8 * 8
     off_within_byte = index % 8
     return start_of_byte + (7 - off_within_byte)
 
@@ -174,11 +174,6 @@ def flip_bs_bitorder(bs):
     parts = [Bits(reversed(bs[i:i+8]))
              for i in range(0, len(bs), 8)]
     return type(bs)().join(parts)
-
-for i in range(100):
-    assert i == flip_bitorder(flip_bitorder(i))
-    assert flip_bitorder(i) - i == 7
-
 
 def pack(_bytes, width):
     """ Pack values into a smaller space

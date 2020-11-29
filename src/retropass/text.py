@@ -17,15 +17,23 @@ def load(name, f):
     for line in f:
         if not line.strip() or line.startswith('#'):
             continue
+        line = line.rstrip('\n')
         byte, char = line.split('=')
-        c2b[char] = int(byte, 16)
+        byte = int(byte, 16)
+        c2b[char] = byte
         b2c[byte] = char
 
+    assert len(c2b) == len(b2c)
+    if not c2b:
+        raise ValueError(f"text table for {name} appears to be empty")
+
     def decode(_bytes):
-        return ''.join(b2c[byte] for byte in _bytes)
+        s = ''.join(b2c[byte] for byte in _bytes)
+        return (s, len(_bytes))
 
     def encode(s):
-        return [c2b[char] for char in s]
+        _bytes = bytes(c2b[char] for char in s)
+        return (_bytes, len(s))
 
     ci = codecs.CodecInfo(encode, decode)
     return ci
@@ -38,7 +46,7 @@ def lookup(name):
     This is registered as a codec search function, so it shouldn't need to be
     called directly."""
 
-    path = f'{libroot}/plugins/{name}.tbl'
+    path = f'{libroot}/game/{name}.tbl'
     try:
         with open(path) as f:
             return load(name, f)
