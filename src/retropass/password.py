@@ -1,5 +1,6 @@
 import abc
 from collections import Counter
+from collections.abc import Mapping
 from itertools import chain
 
 from bitarray import bitarray
@@ -52,7 +53,7 @@ class Field:
         return {f.fid: f for f in fields}
 
 
-class Password(abc.ABC):
+class Password(Mapping):
     _initialized = False
     _games = {}
 
@@ -83,10 +84,11 @@ class Password(abc.ABC):
     def hex(self):
         return ba2hex(self.data)
 
-    @property
-    def checksum(self):
-        _bytes = self.data.tobytes()
-        return sum(self.data.tobytes()) % 0xFF
+    def __iter__(self):
+        return iter(self.fields)
+
+    def __len__(self):
+        return len(self.fields)
 
     def __getattr__(self, name):
         if name not in self.fields:
@@ -98,12 +100,30 @@ class Password(abc.ABC):
         if not self._initialized:
             object.__setattr__(self, name, value)
         elif name not in self.fields:
-            raise AttributeError(f"Attribute not found: {name}")
+            raise AttributeError(f"No such field: {name}")
         else:
             field = self.fields[name]
             length = field.width
             end = self.data.endian()
             self.data[field.slice] = int2ba(value, length=length, endian=end)
+
+    def __getitem__(self, name):
+        if name not in self.fields:
+            raise KeyError(f"No such field: {name}")
+        return getattr(self, name)
+
+    def __setitem__(self, name, value):
+        if name not in self.fields:
+            raise KeyError(f"No such field: {name}")
+        setattr(self, name, value)
+
+    def dump(self):
+        cw = max(len(fid) for fid in self.fields) + 2
+        fmt = '{fid:{width}}{value}\n'
+        out = ''
+        for fid, value in sorted(self.items()):
+            out += fmt.format(fid=fid+':', width=cw, value=self[fid])
+        return out
 
 
 class MetroidPassword(Password):
@@ -120,6 +140,11 @@ class MetroidPassword(Password):
         bits += int2ba(self.shift, 8, 'little')
         bits += int2ba(self.checksum, 8, 'little')
         return bits
+
+    @property
+    def checksum(self):
+        _bytes = self.data.tobytes()
+        return (sum(self.data.tobytes()) + self.shift) % 0x100
 
     @property
     def codepoints(self):
