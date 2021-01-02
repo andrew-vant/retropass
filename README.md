@@ -21,6 +21,10 @@ internal data structures. Retropass gives you that "for free"; it is
 impossible to add support for a game without simultaneously documenting
 most of its password structure.
 
+### Status
+
+Still beta. CLI and API details are subject to change.
+
 ## Installation
 
 1. Install Python 3.6 or above.
@@ -40,13 +44,38 @@ options:
 3. Run `retropass metroid metroid.conf`. It will print the corresponding
    password.
 
+## Usage as a library
+
+The API is minimal. There is a Password class. It has subclasses for
+each game, and a .make classmethod that creates the appropriate type of
+object given the game's name. A list of available names is available via
+retropass.Password.supported_games()
+
+The options available for a given password can be set either
+attribute-style (`pw.option = 1`) or dictionary-style (`pw['option'] =
+1`). You can get the available options and their current settings as a
+dictionary with `dict(pw)`, or as a pretty-printed string with
+`print(pw.dump())`. Stringifying or printing the password object will
+produce the resulting password.
+
+Usage example:
+
+```
+from retropass import Password
+
+pw = Password.make('metroid')
+pw.has_marumari = 1
+pw.has_longbeam = 1
+print(pw)
+```
+
 ## Known Issues
 
-* The alpha currently only supports Metroid. I started there because
+* So far only Metroid is supported. I started there because
   it's the best-documented format, and I could test my results against
   existing generators.
-* No great way of handling lists of related bits, e.g. all the missile
-  containers in Metroid
+* There's no great way of handling lists of related bits, e.g. all the
+  missile containers in Metroid
 
 ## Extra Credits
 
