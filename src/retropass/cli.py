@@ -19,25 +19,25 @@ def main(argv=None):
     desc = "retro game password generator"
     desc = "metroid password generator"
 
+    # Check for the version option before normal parsing, so the parser doesn't
+    # choke on missing args:
+    if "-V" in argv or "--version" in argv:
+        print('retropass v' + rp.version)
+        sys.exit()
+
     parser = argparse.ArgumentParser(description=desc)
 
     addarg = parser.add_argument
     addopt = partial(addarg, nargs='?')
     addflag = partial(addarg, action='store_true')
 
-    # Check for the version option before adding the others, so the parser
-    # doesn't choke on missing args:
-    addflag("-V", "--version", help="print program version")
-    args, argv = parser.parse_known_args(argv)
-    if args.version:
-        print('retropass v' + rp.version)
-        sys.exit()
-
-    addarg("game", help="game to generate password for")
+    addarg("game", choices=rp.Password.supported_games(),
+           help="game to generate password for")
     addopt("conf", help="file to take settings from", type=FileType())
     addflag("-d", "--dump", help="dump resulting settings, or defaults")
     addflag("-v", "--verbose", help="verbose logging")
     addflag("-D", "--debug", help="debug logging")
+    addflag("-V", "--version", help="print program version")
 
     args = parser.parse_args(argv)
     level = (logging.DEBUG if args.debug
