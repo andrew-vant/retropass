@@ -21,6 +21,25 @@ internal data structures. Retropass gives you that "for free"; it is
 impossible to add support for a game without simultaneously documenting
 most of its password structure.
 
+## Installation
+
+1. Install Python 3.6 or above.
+2. Install Pip, if needed. On windows platforms, Pip is included in the
+   python installation.
+3. Run `pip install --user retropass`
+
+## CLI Usage
+
+Retropass is intended as a library for use by other tools, but it has a
+command line interface as well. You feed it a file containing the
+options you want, and it generates a password that implements those
+options:
+
+1. Run `retropass metroid --dump > metroid.conf` to create the file.
+2. Edit the file to set whatever options you want.
+3. Run `retropass metroid metroid.conf`. It will print the corresponding
+   password.
+
 ## Known Issues
 
 * The alpha currently only supports Metroid. I started there because
