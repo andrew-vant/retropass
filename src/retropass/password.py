@@ -70,6 +70,10 @@ class Password(Mapping):
     def make(cls, gid):
         return cls._games[gid]()
 
+    @classmethod
+    def supported_games(cls):
+        return list(cls._games)
+
     def __init__(self):
         # Subclasses should run super().__init__ *after* doing their own
         # initialization
