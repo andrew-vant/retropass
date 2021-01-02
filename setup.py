@@ -5,7 +5,7 @@ deps = ['bitstring>=3.1.3',
         'bitarray>=1.5.0',
         'pyyaml>=3.10']
 scm_version_options = {
-        'write_to': 'src/version.py',
+        'write_to': 'src/retropass/version.py',
         'fallback_version': 'UNKNOWN',
         }
 classifiers = ['Development Status :: 3 - Alpha',

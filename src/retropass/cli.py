@@ -25,13 +25,21 @@ def main(argv=None):
     addopt = partial(addarg, nargs='?')
     addflag = partial(addarg, action='store_true')
 
+    # Check for the version option before adding the others, so the parser
+    # doesn't choke on missing args:
+    addflag("-V", "--version", help="print program version")
+    args, argv = parser.parse_known_args(argv)
+    if args.version:
+        print('retropass v' + rp.version)
+        sys.exit()
+
     addarg("game", help="game to generate password for")
     addopt("conf", help="file to take settings from", type=FileType())
     addflag("-d", "--dump", help="dump resulting settings, or defaults")
     addflag("-v", "--verbose", help="verbose logging")
     addflag("-D", "--debug", help="debug logging")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     level = (logging.DEBUG if args.debug
              else logging.INFO if args.verbose
              else logging.WARN)
