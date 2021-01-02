@@ -4,7 +4,7 @@ import argparse
 import logging
 from functools import partial
 
-import retropass
+import retropass as rp
 import retropass.util as util
 
 
@@ -16,6 +16,8 @@ def main(argv=None):
         argv = sys.argv[1:]
 
     desc = "retro game password generator"
+    desc = "metroid password generator"
+
     parser = argparse.ArgumentParser(description=desc)
 
     addarg = parser.add_argument
@@ -32,6 +34,12 @@ def main(argv=None):
     logging.basicConfig(level=level, format=lfmt)
     log.debug("debug logging on")
     log.info("verbose logging on")
+
+    pw = rp.Password.make('metroid')
+    pw.taken_marumari = True
+    pw.has_marumari = True
+    log.debug(pw.data)
+    print(pw)
 
 
 if __name__ == '__main__':

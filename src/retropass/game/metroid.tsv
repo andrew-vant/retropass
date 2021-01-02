@@ -1,4 +1,4 @@
-id	bit_offset	bit_width	type	group	requires	forbids	order	desc
+fid	offset	width	type	group	requires	forbids	order	desc
 taken_marumari	0	1		Taken	has_marumari			Maru Mari (Taken)
 missile	1	1		Missiles				Missile Container (Brinstar)
 door_longbeam	2	1		Doors				Door Opened (Long Beam)
@@ -63,7 +63,7 @@ unknown2	60	1		Unknown				Unknown 2
 unknown3	61	1		Unknown				Unknown 3
 unknown4	62	1		Unknown				Unknown 4
 unknown5	63	1		Unknown				Unknown 5
-area	64	4		Misc				Start Location
+area	64	4	uint	Misc				Start Location
 unknown6	68	1		Unknown				Unknown 6
 unknown7	69	1		Unknown				Unknown 7
 unknown8	70	1		Unknown				Unknown 8
