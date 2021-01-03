@@ -1,7 +1,9 @@
 import abc
-from collections import Counter
+from types import SimpleNamespace
+from collections import Counter, namedtuple
 from collections.abc import Mapping
 from itertools import chain
+from string import ascii_uppercase
 
 from bitarray import bitarray
 from bitarray.util import ba2int, int2ba, ba2hex, zeros
@@ -53,7 +55,7 @@ class Field:
         return {f.fid: f for f in fields}
 
 
-class Password(Mapping):
+class Password:
     _initialized = False
     _games = {}
 
@@ -74,6 +76,7 @@ class Password(Mapping):
     def supported_games(cls):
         return list(cls._games)
 
+class Structure(Mapping):
     def __init__(self):
         # Subclasses should run super().__init__ *after* doing their own
         # initialization
@@ -130,7 +133,7 @@ class Password(Mapping):
         return out
 
 
-class MetroidPassword(Password):
+class MetroidPassword(Structure, Password):
     gid = 'metroid'
     fields = Field.gamefields(gid)
 
@@ -167,3 +170,51 @@ class MetroidPassword(Password):
     def __str__(self):
         pw = bytes(self.codepoints).decode(self.gid)
         return ' '.join(chunk(pw, 6))
+
+
+class MM2Boss:
+    def __init__(self, name, alive, dead):
+        self.name = name
+        self.alive = int(alive)
+        self.dead = int(dead)
+
+
+class MM2Password(Password):
+    gid = 'mm2'
+    bosses = {record['name']: MM2Boss(**record)
+              for record in readtsv(f'{libroot}/game/mm2.tsv')}
+
+    def __init__(self):
+        self.tanks = 0
+        self.defeated = SimpleNamespace()
+        for name in self.bosses:
+            setattr(self.defeated, name, 0)
+
+    def __str__(self):
+        codepoints = [self.tanks]
+        for boss in self.bosses.values():
+            base = boss.dead if self[boss.name] else boss.alive
+            code = (base + self.tanks) % 20 + 5
+            codepoints.append(code)
+
+        out = []
+        for code in codepoints:
+            letter = ascii_uppercase[code // 5]
+            number = code % 5 + 1
+            out.append(letter + str(number))
+        return " ".join(sorted(out))
+
+    def __getitem__(self, k):
+        return self.tanks if k == 'tanks' else getattr(self.defeated, k)
+
+    def __setitem__(self, k, v):
+        if k == 'tanks':
+            self.tanks = int(v)
+        else:
+            setattr(self.defeated, k, v)
+
+    def dump(self):
+        out = f'tanks: {self.tanks}\n'
+        for name in self.bosses:
+            out += f'{name}: {self[name]}\n'
+        return out
