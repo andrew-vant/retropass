@@ -1,10 +1,7 @@
-import abc
 import logging
-from types import SimpleNamespace
-from collections import Counter, namedtuple
+from collections import Counter
 from collections.abc import Mapping
 from abc import abstractmethod
-from itertools import chain
 from string import ascii_uppercase
 
 from bitarray import bitarray
@@ -130,7 +127,7 @@ class Password(Mapping):
 
 
 class Structure(Mapping):
-    fields = None
+    fields = {}
     _initialized = False
 
     def __init__(self):
@@ -214,7 +211,6 @@ class MetroidPassword(Structure, Password):
 
     @property
     def checksum(self):
-        _bytes = self.data.tobytes()
         return (sum(self.data.tobytes()) + self.shift) % 0x100
 
     @property

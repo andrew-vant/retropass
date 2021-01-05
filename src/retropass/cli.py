@@ -1,12 +1,10 @@
 import sys
-import os
 import argparse
 import logging
 from functools import partial
 from argparse import FileType
 
 import retropass as rp
-import retropass.util as util
 
 
 log = logging.getLogger(__name__)

@@ -4,9 +4,6 @@ import csv
 import enum
 from enum import Enum
 from os.path import dirname, realpath
-from collections.abc import Sequence
-
-from bitstring import BitArray, BitStream
 
 
 libroot = dirname(realpath(__file__))

@@ -1,7 +1,5 @@
-import os
 import codecs
 import logging
-from glob import glob
 from functools import lru_cache
 
 from .util import libroot
