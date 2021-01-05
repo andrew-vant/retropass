@@ -1,9 +1,15 @@
-fid	offset	width	type	group	order	desc	notes
-unknown	0	24					
-score	24	24	uintle				
-hearts	48	16	uintle				
-unknown	64	16					arrows/health?
-hammers	80	8					
-feathers	88	8					
-unknown	96	32					clock/weapons?
-stage	128	8					
+fid	offset	width	type	mod	group	order	desc	notes
+unknown	0	24						
+score	24	24	uintle					
+hearts	48	16	uintle					
+unknown	64	16						arrows/health?
+hammers	80	8						
+feathers	88	8						
+unknown	96	8						clock?
+unknown	104	8						
+unknown	112	8						
+unknown	120	8						
+substage	128	2		1				
+unknown	130	2						
+maze	132	1						
+stage	133	3						

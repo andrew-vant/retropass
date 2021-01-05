@@ -49,16 +49,58 @@ class TestMetroid(TestCase):
 
 
 class TestKidIcarus(TestCase):
+    """ By level:
+    000000 000000 E30000 0000Yx: 1-1
+    000000 000000 m20000 00002q: 1-1
+    0000eu 60j700 uG0004 1000J0: 1-4
+    0000ys T0J300 m2001C H000aS: 2-1
+    00008C i04400 mIG01D I0005F: 2-4
+    0000mu w0K200 O3G00H I100s5: 3-1
+    0000y0 11X200 u0G00H I100t0: 3-4
+    00008p 414100 O3G00H I500eB: 4-1
+
+
+    """
     def setUp(self):
         self.make = partial(Password.make, 'ki')
         self.default = self.make()
 
     def test_password_roundtrip(self):
         passwords = ['000000 000000 000000 000000',
-                     '000000 000000 000000 0004G0']
+                     '000000 000000 000000 0004G0',
+                     '000000 000000 E30000 0000Yx']
         for text in passwords:
             pw = self.make(text)
             self.assertEqual(text, str(pw))
+
+    def test_known_passwords(self):
+        text = '000000 000000 E30000 0000Yx'
+        pw = self.make(text)
+        self.assertEqual(text, str(pw))
+
+    def test_known_password_levels(self):
+        passwords = {
+            "000000 000000 E30000 0000Yx": "1-1",
+            "000000 000000 m20000 00002q": "1-1",
+            "000000 000000 O10000 0004IU": "1-2",
+            "0000aC 10v000 O50000 0004Yw": "1-2",
+            "6eW3!! !!!!00 F38W!H C0042N": "1-2",
+            "0000eu 60j700 uG0004 1000J0": "1-4",
+            "0000ys T0J300 m2001C H000aS": "2-1",
+            "C0G00Q G0v500 kO0008 I004af": "2-2",
+            "C0W0C? K0e300 ET0008 I0084Z": "2-3",
+            "00008C i04400 mIG01D I0005F": "2-4",
+            "0000mu w0K200 O3G00H I100s5": "3-1",
+            "CeW0qB d0j400 O3000C J104s7": "3-2",
+            "EeW1yw h08300 u2000C J1086j": "3-3",
+            "0000y0 11X200 u0G00H I100t0": "3-4",
+            "00008p 414100 O3G00H I500eB": "4-1",
+            }
+        from bitarray.util import int2ba
+        for text, level in passwords.items():
+            pw = self.make(text)
+            self.assertEqual(pw.level, level)
+            self.assertEqual(str(pw), text)
 
 
 class TestMM2(TestCase):

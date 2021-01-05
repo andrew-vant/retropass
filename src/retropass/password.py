@@ -23,12 +23,14 @@ class InvalidPassword(ValueError):
 
 class Field:
     """ Attributes of a password data field """
-    def __init__(self, fid, offset, width, _type='uint', group='misc',
-                 order=0, desc='', **kwargs):
+    def __init__(self, fid, offset, width, _type='uint', mod=0,
+                 group='misc', order=0, desc='', **kwargs):
         if isinstance(offset, str):
             offset = int(offset, 0)
         if isinstance(width, str):
             width = int(width, 0)
+        if isinstance(mod, str):
+            mod = int(mod, 0) if mod else 0
         if 'type' in kwargs:
             _type = kwargs['type']
 
@@ -39,6 +41,7 @@ class Field:
         self.order = order
         self.desc = desc
         self.type = _type
+        self.mod = mod
 
     @property
     def slice(self):
@@ -154,7 +157,7 @@ class Structure(Mapping):
         if name not in self.fields:
             raise AttributeError(f"No such field: {name}")
         field = self.fields[name]
-        return ba2int(self.data[field.slice])
+        return ba2int(self.data[field.slice]) + field.mod
 
     def __setattr__(self, name, value):
         if not self._initialized:
@@ -162,8 +165,8 @@ class Structure(Mapping):
         elif name not in self.fields:
             raise AttributeError(f"No such field: {name}")
         else:
-            value = int(value)
             field = self.fields[name]
+            value = int(value) - field.mod
             length = field.width
             end = self.data.endian()
             self.data[field.slice] = int2ba(value, length=length, endian=end)
@@ -251,6 +254,18 @@ class KidIcarusPassword(MetroidPassword):
             msg = f"checksum failure, {self.checksum} != {checksum} [{password}]"
             raise InvalidPassword(msg)
         self._initialized = True
+
+    @property
+    def level(self):
+        sub = 4 if self.maze else self.substage
+        return f'{self.stage}-{sub}'
+
+    @level.setter
+    def level(self, value):
+        stage, substage = (int(part) for part in value.split('-'))
+        self.stage = stage
+        self.substage = 0 if substage == 4 else substage
+        self.maze = int(substage == 4)
 
     @property
     def bits(self):
