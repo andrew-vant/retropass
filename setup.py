@@ -1,5 +1,6 @@
+from os.path import join, dirname
+
 from setuptools import setup, find_packages
-from pprint import pprint
 
 deps = ['bitstring>=3.1.3',
         'bitarray>=1.5.0',
@@ -14,6 +15,11 @@ classifiers = ['Development Status :: 3 - Alpha',
                'Operating System :: OS Independent',
                'Programming Language :: Python :: 3',
                'Topic :: Software Development :: Libraries :: Python Modules']
+
+
+def read(filename):
+    with open(join(dirname(__file__), filename)) as f:
+        return f.read()
 
 setup(name='retropass',
       packages=find_packages('src'),
@@ -30,6 +36,8 @@ setup(name='retropass',
       author_email='ajvant@gmail.com',
       classifiers=classifiers,
       description='Library and tool for generating progress passwords for old games',
+      long_description=read('README.md'),
+      long_description_content_type='text/markdown',
       zip_safe=False,
       keywords="rom roms nes",
       url="https://github.com/andrew-vant/retropass",
