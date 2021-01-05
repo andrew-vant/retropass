@@ -33,7 +33,8 @@ def main(argv=None):
 
     addarg("game", choices=rp.Password.supported_games(),
            help="game to generate password for")
-    addopt("conf", help="file to take settings from", type=FileType())
+    addopt("-c", "--conf", help="file to take settings from", type=FileType())
+    addopt("-p", "--password", help="password to decode")
     addflag("-d", "--dump", help="dump resulting settings, or defaults")
     addflag("-v", "--verbose", help="verbose logging")
     addflag("-D", "--debug", help="debug logging")
@@ -48,20 +49,16 @@ def main(argv=None):
     log.debug("debug logging on")
     log.info("verbose logging on")
 
-    pw = rp.Password.make(args.game)
-    if args.conf:
-        for line in args.conf:
-            # Skip comments and blank lines
-            if line.startswith("#") or not line.strip():
-                continue
-            k, v = (part.strip() for part in line.split(":"))
-            pw[k] = int(v, 0)
+    try:
+        pw = rp.Password.make(args.game, args.password, args.conf)
+    except rp.InvalidPassword as ex:
+        log.error(ex)
+        sys.exit(2)
 
-    if args.dump:
+    if args.dump or args.password:
         print(pw.dump())
     else:
         print(pw)
-
 
 if __name__ == '__main__':
     main()

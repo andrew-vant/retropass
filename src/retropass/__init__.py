@@ -1,4 +1,4 @@
-from .password import Password
+from .password import Password, InvalidPassword
 from . import text
 
 try:

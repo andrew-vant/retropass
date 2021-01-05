@@ -1,4 +1,5 @@
 from unittest import TestCase
+from functools import partial
 
 from retropass import Password
 
@@ -39,3 +40,26 @@ class TestMetroid(TestCase):
 
     def test_pw_length(self):
         self.assertEqual(len(str(self.default)), 24+3)  # +3 for the spaces
+
+class TestMM2(TestCase):
+    def setUp(self):
+        self.make = partial(Password.make, 'mm2')
+        self.default = self.make()
+
+    def test_known_password_1(self):
+        # Starting state. No tanks, all bosses alive.
+        text = "A1 B5 C3 C4 D2 D5 E1 E2 E4"
+        pw = self.make(text)
+        self.assertEqual(pw.tanks, 0)
+        for boss in pw.bosses:
+            self.assertFalse(pw[boss])
+        self.assertEqual(text, str(pw))
+
+    def test_known_password_2(self):
+        # Four tanks and all bosses dead
+        text = "A5 B2 B4 C1 C3 C5 D4 D5 E2"
+        pw = self.make(text)
+        self.assertEqual(pw.tanks, 4)
+        for boss in pw.bosses:
+            self.assertTrue(pw[boss])
+        self.assertEqual(text, str(pw))

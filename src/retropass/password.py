@@ -1,4 +1,5 @@
 import abc
+import logging
 from types import SimpleNamespace
 from collections import Counter, namedtuple
 from collections.abc import Mapping
@@ -9,6 +10,14 @@ from bitarray import bitarray
 from bitarray.util import ba2int, int2ba, ba2hex, zeros
 
 from .util import rotate, chunk, readtsv, libroot
+
+
+log = logging.getLogger(__name__)
+
+
+class InvalidPassword(ValueError):
+    def __str__(self):
+        return "Invalid password: " + super().__str__()
 
 
 class Field:
@@ -69,8 +78,20 @@ class Password:
         cls._games[cls.gid] = cls
 
     @classmethod
-    def make(cls, gid):
-        return cls._games[gid]()
+    def make(cls, gid, password=None, infile=None):
+        pw = cls._games[gid](password)
+        if infile:
+            pw.read_settings(infile)
+        return pw
+
+    def read_settings(self, f):
+        for line in f:
+            # Skip comments and blank lines
+            if line.startswith("#") or not line.strip():
+                continue
+            k, v = (part.strip() for part in line.split(":"))
+            self[k] = int(v, 0)
+
 
     @classmethod
     def supported_games(cls):
@@ -137,9 +158,24 @@ class MetroidPassword(Structure, Password):
     gid = 'metroid'
     fields = Field.gamefields(gid)
 
-    def __init__(self):
-        self.shift = 0
-        super().__init__()
+    def __init__(self, password=None):
+        if password is None:
+            password = '0' * 24
+        password = password.strip().replace(' ', '')  # Remove spaces
+        if len(password) != 24:
+            raise InvalidPassword("Invalid password, wrong length")
+
+        data = bitarray(endian='big')
+        for charcode in password.encode(self.gid):
+            data += int2ba(charcode, 6, endian='big')
+        self.data = bitarray(data[:-16], 'little')
+        self.shift = ba2int(data[-16:-8])
+        checksum = ba2int(data[-8:])
+
+        if sum(data.tobytes()) != checksum:
+            raise InvalidPassword("Invalid password, checksum failure")
+
+        self._initialized = True
 
     @property
     def bits(self):
@@ -164,9 +200,6 @@ class MetroidPassword(Structure, Password):
         for c in chunk(bitarray(self.bits, 'big'), 6):
             yield ba2int(c)
 
-    def __repr__(self):
-        return ba2hex(self.bits)
-
     def __str__(self):
         pw = bytes(self.codepoints).decode(self.gid)
         return ' '.join(chunk(pw, 6))
@@ -184,11 +217,59 @@ class MM2Password(Password):
     bosses = {record['name']: MM2Boss(**record)
               for record in readtsv(f'{libroot}/game/mm2.tsv')}
 
-    def __init__(self):
+    def __init__(self, password=None):
+        self.tanks = None
+        self.defeated = dict()
+        for boss in self.bosses:
+            self.defeated[boss] = None
+
+        if password:
+            self._load_password(password)
+        else:
+            self._set_defaults()
+        assert self.tanks is not None
+        assert not any(state is None for state in self.defeated.values())
+        self._initialized = True
+
+    def _set_defaults(self):
         self.tanks = 0
-        self.defeated = SimpleNamespace()
         for name in self.bosses:
-            setattr(self.defeated, name, 0)
+            self.defeated[name] = False
+
+    def _load_password(self, password):
+        codes = sorted(self.cell2int(cell) for cell in password.split(" "))
+        if len(codes) != 9:
+            raise InvalidPassword("Wrong length")
+        if codes[0] > 4:
+            raise InvalidPassword("Tank cell missing")
+
+        self.tanks = codes[0]
+        codes = [(code - 5 - self.tanks) % 20
+                 for code in codes[1:]]
+        for boss in self.bosses.values():
+            alive = boss.alive in codes
+            dead = boss.dead in codes
+            if alive and dead:
+                raise InvalidPassword(f"{boss.name} is schrodinger's boss")
+            elif alive:
+                self[boss.name] = False
+            elif dead:
+                self[boss.name] = True
+            else:
+                raise InvalidPassword(f"No state cell for {boss.name}")
+
+    @staticmethod
+    def cell2int(cell):
+        if len(cell) != 2:
+            raise ValueError("Cells are letter-number pairs")
+        row = cell[0]
+        col = cell[1]
+        return (ord(row) - ord('A')) * 5 + (int(col)-1)
+
+    @staticmethod
+    def int2cell(i):
+        return ascii_uppercase[i // 5] + str(i % 5 + 1)
+
 
     def __str__(self):
         codepoints = [self.tanks]
@@ -196,25 +277,19 @@ class MM2Password(Password):
             base = boss.dead if self[boss.name] else boss.alive
             code = (base + self.tanks) % 20 + 5
             codepoints.append(code)
-
-        out = []
-        for code in codepoints:
-            letter = ascii_uppercase[code // 5]
-            number = code % 5 + 1
-            out.append(letter + str(number))
-        return " ".join(sorted(out))
+        return ' '.join(sorted(self.int2cell(cp) for cp in codepoints))
 
     def __getitem__(self, k):
-        return self.tanks if k == 'tanks' else getattr(self.defeated, k)
+        return self.tanks if k == 'tanks' else self.defeated[k]
 
     def __setitem__(self, k, v):
         if k == 'tanks':
             self.tanks = int(v)
         else:
-            setattr(self.defeated, k, v)
+            self.defeated[k] = v
 
     def dump(self):
         out = f'tanks: {self.tanks}\n'
         for name in self.bosses:
-            out += f'{name}: {self[name]}\n'
+            out += f'{name}: {int(self[name])}\n'
         return out
