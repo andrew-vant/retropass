@@ -1,13 +1,17 @@
 fid	offset	width	type	mod	group	order	desc	notes
-unknown	0	24						
+fire?	0	8						unsure how active/inactive/theft are tracked
+bow?	8	8						
+crystal?	16	8						
 score	24	24	uintle					
 hearts	48	16	uintle					
-unknown	64	16						arrows/health?
+unknown	64	8						
+unknown	72	8						
 hammers	80	8						
 feathers	88	8						
 unknown	96	8						clock?
-unknown	104	8						
-unknown	112	8						
+health	104	4		1				
+strength	108	4		1				
+treasures	112	8						TODO: which specific bits track treasures. I think this byte has more in it, too.
 unknown	120	8						
 substage	128	2		1				
 unknown	130	2						
