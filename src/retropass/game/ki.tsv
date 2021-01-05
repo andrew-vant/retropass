@@ -1,0 +1,9 @@
+fid	offset	width	type	group	order	desc	notes
+unknown	0	24					
+score	24	24	uintle				
+hearts	48	16	uintle				
+unknown	64	16					arrows/health?
+hammers	72	8					
+feathers	80	8					
+unknown	88	32					clock/weapons?
+stage	120	8					
