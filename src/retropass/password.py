@@ -230,6 +230,42 @@ class MetroidPassword(Structure, Password):
         return ' '.join(chunk(pw, 6))
 
 
+class KidIcarusPassword(MetroidPassword):
+    gid = 'ki'
+    fields = Field.gamefields(gid)
+
+    def __init__(self, password=None):
+        if password is None:
+            password = '0' * 24
+        password = password.strip().replace(' ', '')  # Remove spaces
+        if len(password) != 24:
+            raise InvalidPassword("wrong length")
+
+        data = bitarray(endian='little')
+        for charcode in password.encode(self.gid):
+            data += int2ba(charcode, 6, endian='little')
+        self.data = bitarray(data[:-8], 'little')
+        checksum = ba2int(data[-8:])
+
+        if self.checksum != checksum:
+            msg = f"checksum failure, {self.checksum} != {checksum} [{password}]"
+            raise InvalidPassword(msg)
+        self._initialized = True
+
+    @property
+    def bits(self):
+        return self.data + int2ba(self.checksum, 8, 'little')
+
+    @property
+    def checksum(self):
+        return sum(self.data.tobytes()) % 0x100
+
+    @property
+    def codepoints(self):
+        for c in chunk(bitarray(self.bits, 'little'), 6):
+            yield ba2int(c)
+
+
 class MM2Boss:
     def __init__(self, name, alive, dead):
         self.name = name

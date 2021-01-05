@@ -47,6 +47,20 @@ class TestMetroid(TestCase):
     def test_pw_length(self):
         self.assertEqual(len(str(self.default)), 24+3)  # +3 for the spaces
 
+
+class TestKidIcarus(TestCase):
+    def setUp(self):
+        self.make = partial(Password.make, 'ki')
+        self.default = self.make()
+
+    def test_password_roundtrip(self):
+        passwords = ['000000 000000 000000 000000',
+                     '000000 000000 000000 0004G0']
+        for text in passwords:
+            pw = self.make(text)
+            self.assertEqual(text, str(pw))
+
+
 class TestMM2(TestCase):
     def setUp(self):
         self.make = partial(Password.make, 'mm2')
