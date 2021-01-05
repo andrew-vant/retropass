@@ -81,8 +81,12 @@ print(pw)
 
 I used the following as documentation or reference implementations:
 
-* John Ratliff's [Metroid Password Format Guide][mpfg].
-* Alex Rasmussen's [True Peace in Space][tpis] generator.
+* [Metroid Password Format Guide][mpfg], John Ratliff.
+* [True Peace in Space][tpis], Alex Rasmussen.
+* [Kid Icarus Password Generator (KIP)][kip], author unknown. Once used the handle "Parasyte" according
+  to [archive.org][kiparch].
 
 [mpfg]: http://games.technoplaza.net/mpg/password.txt
 [tpis]: https://www.truepeacein.space
+[kip]: http://www.geocities.ws/passgens/pages/Kid_Icarus.htm
+[kiparch]: https://web.archive.org/web/20060422233317/http://desnet.fobby.net/index.php?page=utilities&id=19
