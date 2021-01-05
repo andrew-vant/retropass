@@ -3,6 +3,7 @@ import logging
 from types import SimpleNamespace
 from collections import Counter, namedtuple
 from collections.abc import Mapping
+from abc import abstractmethod
 from itertools import chain
 from string import ascii_uppercase
 
@@ -64,13 +65,11 @@ class Field:
         return {f.fid: f for f in fields}
 
 
-class Password:
-    _initialized = False
+class Password(Mapping):
     _games = {}
-
-    # These must be provided by subclasses
-    gid = None  # Game ID
-    fields = None
+    # This must be provided by subclasses
+    gid = None      # Game ID
+    default = None  # Default password
 
     def __init_subclass__(cls):
         if not cls.gid:
@@ -81,23 +80,56 @@ class Password:
     def make(cls, gid, password=None, infile=None):
         pw = cls._games[gid](password)
         if infile:
-            pw.read_settings(infile)
+            pw.load(infile)
         return pw
-
-    def read_settings(self, f):
-        for line in f:
-            # Skip comments and blank lines
-            if line.startswith("#") or not line.strip():
-                continue
-            k, v = (part.strip() for part in line.split(":"))
-            self[k] = int(v, 0)
-
 
     @classmethod
     def supported_games(cls):
         return list(cls._games)
 
+    @abstractmethod
+    def __init__(self, password=None):
+        """ Construct a password
+
+        Subclasses must implement this. Init must accept a single, optional
+        argument, `password`. If the password is not provided, or is None, a
+        default must be used. The default password should produce the initial
+        game state, if possible.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def __str__(self):
+        """ Stringify a password
+
+        Subclasses must implement this. It should print the password as it
+        would be entered into the game.
+        """
+        raise NotImplementedError
+
+    def load(self, f):
+        for line in f:
+            # Skip comments and blank lines
+            if line.startswith("#") or not line.strip():
+                continue
+            k, v = (part.strip() for part in line.split(":"))
+            self[k] = v
+
+    def dump(self):
+        out = ''
+        colw = max(len(k) for k in self) + 2
+        for key, val in self.items():
+            key = key + ":"
+            val = int(val)
+            out += f'{key:{colw}}{val}\n'
+        return out
+
+
+
 class Structure(Mapping):
+    fields = None
+    _initialized = False
+
     def __init__(self):
         # Subclasses should run super().__init__ *after* doing their own
         # initialization
@@ -130,6 +162,7 @@ class Structure(Mapping):
         elif name not in self.fields:
             raise AttributeError(f"No such field: {name}")
         else:
+            value = int(value)
             field = self.fields[name]
             length = field.width
             end = self.data.endian()
@@ -144,14 +177,6 @@ class Structure(Mapping):
         if name not in self.fields:
             raise KeyError(f"No such field: {name}")
         setattr(self, name, value)
-
-    def dump(self):
-        cw = max(len(fid) for fid in self.fields) + 2
-        fmt = '{fid:{width}}{value}\n'
-        out = ''
-        for fid, value in sorted(self.items()):
-            out += fmt.format(fid=fid+':', width=cw, value=self[fid])
-        return out
 
 
 class MetroidPassword(Structure, Password):
@@ -279,17 +304,22 @@ class MM2Password(Password):
             codepoints.append(code)
         return ' '.join(sorted(self.int2cell(cp) for cp in codepoints))
 
+    def __len__(self):
+        return len(self.defeated) + 1
+
+    def __iter__(self):
+        yield 'tanks'
+        yield from self.bosses.keys()
+
     def __getitem__(self, k):
-        return self.tanks if k == 'tanks' else self.defeated[k]
+        if k == 'tanks':
+            return self.tanks
+        else:
+            return self.defeated[k]
 
     def __setitem__(self, k, v):
+        v = int(v)
         if k == 'tanks':
-            self.tanks = int(v)
+            self.tanks = v
         else:
             self.defeated[k] = v
-
-    def dump(self):
-        out = f'tanks: {self.tanks}\n'
-        for name in self.bosses:
-            out += f'{name}: {int(self[name])}\n'
-        return out
