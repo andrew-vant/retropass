@@ -5,10 +5,16 @@ from retropass import Password
 
 class TestMetroid(TestCase):
     def setUp(self):
-        self.default = Password.make('metroid')
+        self.make = partial(Password.make, 'metroid')
+        self.default = self.make()
 
-    def make(self):
-        return Password.make('metroid')
+    def test_password_roundtrip(self):
+        passwords = ['000000 000000 000000 000000',
+                     '0G0000 000000 400000 00000H',
+                     'GGW01G 000020 VsG000 00002n']
+        for text in passwords:
+            pw = self.make(text)
+            self.assertEqual(text, str(pw))
 
     def test_known_password_1(self):
         pw = self.make()

@@ -188,7 +188,7 @@ class MetroidPassword(Structure, Password):
             password = '0' * 24
         password = password.strip().replace(' ', '')  # Remove spaces
         if len(password) != 24:
-            raise InvalidPassword("Invalid password, wrong length")
+            raise InvalidPassword("wrong length")
 
         data = bitarray(endian='big')
         for charcode in password.encode(self.gid):
@@ -197,8 +197,8 @@ class MetroidPassword(Structure, Password):
         self.shift = ba2int(data[-16:-8])
         checksum = ba2int(data[-8:])
 
-        if sum(data.tobytes()) != checksum:
-            raise InvalidPassword("Invalid password, checksum failure")
+        if self.checksum != checksum:
+            raise InvalidPassword("checksum failure, ")
 
         self._initialized = True
 
