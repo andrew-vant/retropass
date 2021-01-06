@@ -46,7 +46,7 @@ An example, from metroid:
 
 1. Run `retropass metroid --dump > metroid.conf` to create the file.
 2. Edit the file to set whatever options you want.
-3. Run `retropass metroid metroid.conf`. It will print the corresponding
+3. Run `retropass metroid --conf metroid.conf`. It will print the corresponding
    password.
 4. Enter it in your game of choice and play.
 
