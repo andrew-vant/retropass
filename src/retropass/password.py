@@ -161,22 +161,22 @@ class Structure(Mapping):
     def __setattr__(self, name, value):
         if not self._initialized:
             object.__setattr__(self, name, value)
-        elif name not in self.fields:
-            raise AttributeError(f"No such field: {name}")
-        else:
+        elif name in self.fields:
             field = self.fields[name]
             value = int(value) - field.mod
             length = field.width
             end = self.data.endian()
             self.data[field.slice] = int2ba(value, length=length, endian=end)
+        else:
+            super().__setattr__(name, value)
 
     def __getitem__(self, name):
-        if name not in self.fields:
+        if name not in self.fields and not hasattr(self, name):
             raise KeyError(f"No such field: {name}")
         return getattr(self, name)
 
     def __setitem__(self, name, value):
-        if name not in self.fields:
+        if name not in self.fields and not hasattr(self, name):
             raise KeyError(f"No such field: {name}")
         setattr(self, name, value)
 
@@ -278,94 +278,73 @@ class KidIcarusPassword(MetroidPassword):
         for c in chunk(bitarray(self.bits, 'little'), 6):
             yield ba2int(c)
 
-class SolarJetmanPassword(Password):
+class SolarJetmanPassword(Structure, Password):
     # this works like hex with a different alphabet
     charset = 'BDGHKLMNPQRTVWXZ'
     defaultpw = 'BBBBBBBBBBBB'
     gid = 'sj'
+    fields = Field.gamefields(gid)
 
     def __init__(self, password=None):
+        super().__init__()
         if password is None:
             password = self.defaultpw
-        values = [self.charset.index(c) for c in password]
+        for i, char in enumerate(password):
+            start = i * 4
+            end = start + 4
+            cp = self.charset.index(char)
+            self.data[start:end] = int2ba(cp, 4, 'little')
+        assert len(self.data) == self.ct_bits
 
-        self.level = 0
-        self.score = 0
-        self.ship = 0
-        self.lives = 0
-        self.map = 0
-        self.supermap = 0
-        self.thrusters = 0
-        self.shields = 0
+    @property
+    def score(self):
+        score = 0
+        for exp in range(6):
+            digit = self[f'score{exp}']
+            score += digit * 10 ** exp
+        return score
+
+    @score.setter
+    def score(self, value):
+        for exp in range(6):
+            digit = (value // 10 ** exp) % 10
+            self[f'score{exp}'] = digit
+
+    @property
+    def level(self):
+        return (self.levelhigh << 2) + self.levellow + 1
+
+    @level.setter
+    def level(self, value):
+        value -= 1
+        self.levelhigh = value // 4
+        self.levellow = value % 4
 
     def __iter__(self):
-        for key in [
-                'level',
-                'score',
-                'ship',
-                'lives',
-                'map',
-                'supermap',
-                'thrusters',
-                'shields',
-                ]:
-            yield key
-
-    def __getitem__(self, k):
-        return getattr(self, k)
-
-    def __setitem__(self, k, v):
-        if k in self:
-            setattr(self, k, int(v))
-        else:
-            raise KeyError
+        yield 'level'
+        yield 'score'
+        for fid, field in self.fields.items():
+            if field.order >= 0:
+                yield fid
 
     def __len__(self):
-        return 8
+        return len(list(self))
 
     @property
     def codepoints(self):
-        # Each codepoint represents four bits. I got the layout from the Solar
-        # Jetman Password Generator, but I'm *sure* there's a better way
-        # to model what it's doing. The game's password system can't possibly
-        # be this stupid.
+        cp = [ba2int(ck) for ck in chunk(self.data, 4)]
 
-        cp = [0] * 12
-        cp[ 0] = self.lives
-        cp[ 1] = self.scoredigit(0)
-        cp[ 2] = self.level // 4  # upper two(?) bits of level
-        cp[ 3] = 0  # checksum 1
-        cp[ 4] = self.scoredigit(2)
-        cp[ 5] = self.scoredigit(1)
-        cp[ 6] = self.scoredigit(3)
-        cp[ 7] = self.scoredigit(4)
-        cp[ 8] = (
-                    # upper two bits of code 8 are the lower two bits of level.
-                    # The other two bits are flags.
-                    self.level % 4 << 2
-                    | self.map << 1
-                    | self.supermap
-                )
-        cp[ 9] = 0  # checksum 2
-        cp[10] = (
-                    # upper two bits of code 10 are ship, lower two are flags
-                    self.ship << 2
-                    | self.shields << 1
-                    | self.thrusters
-                )
-        cp[11] = self.scoredigit(5)
-
+        # The checksum algorithm is made of horrible...I feel like there should
+        # be a cleaner way to represent this.
         chk1 = ((cp[0] ^ cp[1]) + cp[2] ^ cp[4]) + cp[5]
         chk2 = ((cp[6] ^ cp[7]) + cp[8] ^ cp[10]) + cp[11]
+
         chk2 += int(chk1 >= 16)
         chk1 += chk2 // 16
+
         cp[3] = chk1 % 16
         cp[9] = chk2 % 16
         return cp
-
-    def scoredigit(self, i):
-        # NOTE: i=0 is least significant digit
-        return self.score // 10**i % 10
 
     def __str__(self):
         return ''.join(self.charset[cp] for cp in self.codepoints)

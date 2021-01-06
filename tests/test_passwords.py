@@ -52,7 +52,6 @@ class TestSolarJetman(TestCase):
         self.make = partial(Password.make, 'sj')
         self.default = self.make()
 
-    @expectedFailure
     def test_password_roundtrip(self):
         passwords = ['ZQBQQQQQHGTQ',
                      'ZQBQQQQQNMTQ',
@@ -64,16 +63,18 @@ class TestSolarJetman(TestCase):
     def test_known_passwords(self):
         pw = self.make()
         self.assertEqual(str(pw), "BBBBBBBBBBBB")
-        pw.level = 3
-        self.assertEqual(str(pw), "BBBBBBBBVVBB")
-        pw.score = 1000
-        self.assertEqual(str(pw), "BBBBBBDBVWBB")
+        pw.level = 6
+        self.assertEqual(str(pw), "BBDDBBBBKKBB")
+        pw.score = 123456
+        self.assertEqual(str(pw), "BMDPKLHGKMBD")
         pw.lives = 3
-        self.assertEqual(str(pw), "HBBHBBDBVWBB")
+        self.assertEqual(str(pw), "HMDNKLHGKMBD")
         pw.shields = 1
-        self.assertEqual(str(pw), "HBBHBBDBVZGB")
+        self.assertEqual(str(pw), "HMDNKLHGKPGD")
         pw.map = 1
-        self.assertEqual(str(pw), "HBBHBBDBXWGB")
+        self.assertEqual(str(pw), "HMDNKLHGMMGD")
+        pw.thrusters = 1
+        self.assertEqual(str(pw), "HMDNKLHGMLHD")
 
 
 class TestKidIcarus(TestCase):

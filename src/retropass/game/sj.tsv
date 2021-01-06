@@ -1,0 +1,17 @@
+fid	offset	width	type	mod	group	order	desc	notes
+lives	0	4						
+score0	4	4				-1		ones digit of score
+levelhigh	8	4				-1		upper two (?) bits of level
+chksum1	12	4				-1		first checksum
+score2	16	4				-1		hundreds digit of score
+score1	20	4				-1		tens digit of score
+score3	24	4				-1		thousands digit of score
+score4	28	4				-1		ten-thousands digit of score
+supermap	32	1						
+map	33	1						
+levellow	34	2				-1		lower two bits of level
+chksum2	36	4				-1		second checksum
+thrusters	40	1						
+shields	41	1						
+ship	42	2						
+score5	44	4				-1		hundred-thousands digit of score
