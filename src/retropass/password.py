@@ -28,6 +28,8 @@ class Field:
             width = int(width, 0)
         if isinstance(mod, str):
             mod = int(mod, 0) if mod else 0
+        if isinstance(order, str):
+            order = int(order) if order else 0
         if 'type' in kwargs:
             _type = kwargs['type']
 
@@ -113,7 +115,7 @@ class Password(Mapping):
             if line.startswith("#") or not line.strip():
                 continue
             k, v = (part.strip() for part in line.split(":"))
-            self[k] = v
+            self[k] = int(v, 0)
 
     def dump(self):
         out = ''
