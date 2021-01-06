@@ -13,17 +13,18 @@ video games. Yes, there's quite a few, but I had a few goals not shared
 3. Retropass's CLI is easily scriptable, if for whatever reason you want
    that.
 4. Retropass ships with machine- and human- readable specifications of
-   the password formats.
-
-That last is perhaps the most important. One of the most frustrating
-things about romhacking is the lack of good documentation of games'
-internal data structures. Retropass gives you that "for free"; it is
-impossible to add support for a game without simultaneously documenting
-most of its password structure.
+   the password formats. It can be used as a reference when developing
+   other programs.
 
 ### Status
 
-Still beta. CLI and API details are subject to change.
+Still beta. CLI and API details are subject to change. The following
+games are supported (so far):
+
+* Mega Man 2
+* Metroid
+* Kid Icarus
+* Solar Jetman
 
 ## Installation
 
@@ -32,19 +33,24 @@ Still beta. CLI and API details are subject to change.
    python installation.
 3. Run `pip install --user retropass`
 
-## CLI Usage
+## Usage (by players)
 
 Retropass is intended as a library for use by other tools, but it has a
 command line interface as well. You feed it a file containing the
 options you want, and it generates a password that implements those
-options:
+options.
+
+`retropass --help` will print the available games and options.
+
+An example, from metroid:
 
 1. Run `retropass metroid --dump > metroid.conf` to create the file.
 2. Edit the file to set whatever options you want.
 3. Run `retropass metroid metroid.conf`. It will print the corresponding
    password.
+4. Enter it in your game of choice and play.
 
-## Usage as a library
+## Usage (by developers)
 
 The API is minimal. There is a Password class. It has subclasses for
 each game, and a .make classmethod that creates the appropriate type of
@@ -71,9 +77,6 @@ print(pw)
 
 ## Known Issues
 
-* So far only Metroid is supported. I started there because
-  it's the best-documented format, and I could test my results against
-  existing generators.
 * There's no great way of handling lists of related bits, e.g. all the
   missile containers in Metroid
 

@@ -15,7 +15,6 @@ def main(argv=None):
         argv = sys.argv[1:]
 
     desc = "retro game password generator"
-    desc = "metroid password generator"
 
     # Check for the version option before normal parsing, so the parser doesn't
     # choke on missing args:
