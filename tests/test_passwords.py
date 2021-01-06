@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 from functools import partial
 
 from retropass import Password
@@ -46,6 +46,34 @@ class TestMetroid(TestCase):
 
     def test_pw_length(self):
         self.assertEqual(len(str(self.default)), 24+3)  # +3 for the spaces
+
+class TestSolarJetman(TestCase):
+    def setUp(self):
+        self.make = partial(Password.make, 'sj')
+        self.default = self.make()
+
+    @expectedFailure
+    def test_password_roundtrip(self):
+        passwords = ['ZQBQQQQQHGTQ',
+                     'ZQBQQQQQNMTQ',
+                     'ZQBPQQQQTRTQ']
+        for text in passwords:
+            pw = self.make(text)
+            self.assertEqual(text, str(pw))
+
+    def test_known_passwords(self):
+        pw = self.make()
+        self.assertEqual(str(pw), "BBBBBBBBBBBB")
+        pw.level = 3
+        self.assertEqual(str(pw), "BBBBBBBBVVBB")
+        pw.score = 1000
+        self.assertEqual(str(pw), "BBBBBBDBVWBB")
+        pw.lives = 3
+        self.assertEqual(str(pw), "HBBHBBDBVWBB")
+        pw.shields = 1
+        self.assertEqual(str(pw), "HBBHBBDBVZGB")
+        pw.map = 1
+        self.assertEqual(str(pw), "HBBHBBDBXWGB")
 
 
 class TestKidIcarus(TestCase):

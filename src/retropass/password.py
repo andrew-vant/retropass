@@ -276,6 +276,99 @@ class KidIcarusPassword(MetroidPassword):
         for c in chunk(bitarray(self.bits, 'little'), 6):
             yield ba2int(c)
 
+class SolarJetmanPassword(Password):
+    # this works like hex with a different alphabet
+    charset = 'BDGHKLMNPQRTVWXZ'
+    defaultpw = 'BBBBBBBBBBBB'
+    gid = 'sj'
+
+    def __init__(self, password=None):
+        if password is None:
+            password = self.defaultpw
+        values = [self.charset.index(c) for c in password]
+
+        self.level = 0
+        self.score = 0
+        self.ship = 0
+        self.lives = 0
+        self.map = 0
+        self.supermap = 0
+        self.thrusters = 0
+        self.shields = 0
+
+    def __iter__(self):
+        for key in [
+                'level',
+                'score',
+                'ship',
+                'lives',
+                'map',
+                'supermap',
+                'thrusters',
+                'shields',
+                ]:
+            yield key
+
+    def __getitem__(self, k):
+        return getattr(self, k)
+
+    def __setitem__(self, k, v):
+        if k in self:
+            setattr(self, k, int(v))
+        else:
+            raise KeyError
+
+    def __len__(self):
+        return 8
+
+    @property
+    def codepoints(self):
+        # Each codepoint represents four bits. I got the layout from the Solar
+        # Jetman Password Generator, but I'm *sure* there's a better way
+        # to model what it's doing. The game's password system can't possibly
+        # be this stupid.
+
+        cp = [0] * 12
+        cp[ 0] = self.lives
+        cp[ 1] = self.scoredigit(0)
+        cp[ 2] = self.level // 4  # upper two(?) bits of level
+        cp[ 3] = 0  # checksum 1
+        cp[ 4] = self.scoredigit(2)
+        cp[ 5] = self.scoredigit(1)
+        cp[ 6] = self.scoredigit(3)
+        cp[ 7] = self.scoredigit(4)
+        cp[ 8] = (
+                    # upper two bits of code 8 are the lower two bits of level.
+                    # The other two bits are flags.
+                    self.level % 4 << 2
+                    | self.map << 1
+                    | self.supermap
+                )
+        cp[ 9] = 0  # checksum 2
+        cp[10] = (
+                    # upper two bits of code 10 are ship, lower two are flags
+                    self.ship << 2
+                    | self.shields << 1
+                    | self.thrusters
+                )
+        cp[11] = self.scoredigit(5)
+
+        chk1 = ((cp[0] ^ cp[1]) + cp[2] ^ cp[4]) + cp[5]
+        chk2 = ((cp[6] ^ cp[7]) + cp[8] ^ cp[10]) + cp[11]
+        chk2 += int(chk1 >= 16)
+        chk1 += chk2 // 16
+        cp[3] = chk1 % 16
+        cp[9] = chk2 % 16
+        return cp
+
+    def scoredigit(self, i):
+        # NOTE: i=0 is least significant digit
+        return self.score // 10**i % 10
+
+    def __str__(self):
+        return ''.join(self.charset[cp] for cp in self.codepoints)
+
+
 
 class MM2Boss:
     def __init__(self, name, alive, dead):
