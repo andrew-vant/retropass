@@ -11,7 +11,8 @@ class TestMetroid(TestCase):
     def test_password_roundtrip(self):
         passwords = ['000000 000000 000000 000000',
                      '0G0000 000000 400000 00000H',
-                     'GGW01G 000020 VsG000 00002n']
+                     'GGW01G 000020 VsG000 00002n',
+                     'ENGAGE RIDLEY MOTHER FUCKER',]
         for text in passwords:
             pw = self.make(text)
             self.assertEqual(text, str(pw))
@@ -40,6 +41,11 @@ class TestMetroid(TestCase):
         pw.unarmored = 1
         print(pw.checksum)
         self.assertEqual(str(pw), 'GGW01G 000020 VsG000 00002n')
+
+    def test_known_password_3(self):
+        pw = self.make('ENGAGE RIDLEY MOTHER FUCKER')
+        self.assertEqual(pw.ridley_dead, 1)
+        self.assertEqual(pw.missiles, 82)
 
     def test_data_length(self):
         self.assertEqual(len(self.default.data), 128)

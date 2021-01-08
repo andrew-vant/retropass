@@ -34,6 +34,12 @@ class TestRotate(TestCase):
         bits = msb('1000')
         self.assertEqual(rotate(bits, 4), bits)
 
+    def test_rotate_cancellation(self):
+        for ba in lsb, msb:
+            bits = ba('100100100100100100')
+            rotated = rotate(bits, -1)
+            rotated = rotate(rotated, 1)
+            self.assertEqual(bits, rotated)
 
 class TestChunk(TestCase):
     def test_chunk(self):

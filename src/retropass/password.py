@@ -195,21 +195,16 @@ class MetroidPassword(Structure, Password):
         data = bitarray(endian='big')
         for charcode in password.encode(self.gid):
             data += int2ba(charcode, 6, endian='big')
-        self.data = bitarray(data[:-16], 'little')
-        self.shift = ba2int(data[-16:-8])
-        checksum = ba2int(data[-8:])
 
-        if self.checksum != checksum:
-            raise InvalidPassword("checksum failure, ")
+        self.shift = ba2int(data[-16:-8])
+        gamestate = rotate(data[:-16], -self.shift)
+        chk_given = ba2int(data[-8:])
+        chk_data = (sum(gamestate.tobytes()) + self.shift) % 0x100
+        if chk_given != chk_data:
+            raise InvalidPassword(f"checksum failure, {chk_given} != {chk_data}")
+        self.data = bitarray(gamestate, 'little')
 
         self._initialized = True
-
-    @property
-    def bits(self):
-        bits = rotate(self.data, self.shift)
-        bits += int2ba(self.shift, 8, 'little')
-        bits += int2ba(self.checksum, 8, 'little')
-        return bits
 
     @property
     def checksum(self):
@@ -222,8 +217,12 @@ class MetroidPassword(Structure, Password):
         # opposite endianness. I *think* the right thing to do here is to
         # re-index the field offsets according to msb0, but I'm not sure. Try
         # it and see what the spec looks like.
+        bits = rotate(bitarray(self.data, 'big'), self.shift)
+        bits += int2ba(self.shift, 8)
+        bits += int2ba(self.checksum, 8)
+        assert len(bits) == 144
 
-        for c in chunk(bitarray(self.bits, 'big'), 6):
+        for c in chunk(bits, 6):
             yield ba2int(c)
 
     def __str__(self):
