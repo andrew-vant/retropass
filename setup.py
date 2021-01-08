@@ -9,7 +9,7 @@ scm_version_options = {
         'write_to': 'src/retropass/version.py',
         'fallback_version': 'UNKNOWN',
         }
-classifiers = ['Development Status :: 3 - Alpha',
+classifiers = ['Development Status :: 4 - Beta',
                'Intended Audience :: Developers',
                'Natural Language :: English',
                'Operating System :: OS Independent',
@@ -40,7 +40,7 @@ setup(name='retropass',
       long_description_content_type='text/markdown',
       zip_safe=False,
       keywords="rom roms nes",
-      url="https://github.com/andrew-vant/retropass",
+      url="https://pypi.org/project/retropass/",
       test_suite='tests',
       entry_points={"console_scripts": ["retropass = retropass.cli:main"]},
       )

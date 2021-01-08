@@ -82,12 +82,14 @@ print(pw)
 
 ## Extra Credits
 
-I used the following as documentation or reference implementations:
+The following links were instrumental, either as documentation or as
+reference implementations:
 
 * [Metroid Password Format Guide][mpfg], John Ratliff.
 * [True Peace in Space][tpis], Alex Rasmussen.
 * [Kid Icarus Password Generator (KIP)][kip], author unknown. Once used the handle "Parasyte" according
   to [archive.org][kiparch].
+* StrategyWiki's [Mega Man 2 Password Mechanics][mm2pm] page.
 * [Solar Jetman Password Generator][sjpg], CyberN.
 
 [mpfg]: http://games.technoplaza.net/mpg/password.txt
@@ -95,3 +97,4 @@ I used the following as documentation or reference implementations:
 [kip]: http://www.geocities.ws/passgens/pages/Kid_Icarus.htm
 [kiparch]: https://web.archive.org/web/20060422233317/http://desnet.fobby.net/index.php?page=utilities&id=19
 [sjpg]: https://unoriginal.org/people/cybern/solar_jetman.html
+[mm2pm]: https://strategywiki.org/wiki/Mega_Man_2/Password_Mechanics
