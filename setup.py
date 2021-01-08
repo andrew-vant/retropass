@@ -2,8 +2,7 @@ from os.path import join, dirname
 
 from setuptools import setup, find_packages
 
-deps = ['bitstring>=3.1.3',
-        'bitarray>=1.5.0',
+deps = ['bitarray-hardbyte>=1.5.0',
         'pyyaml>=3.10']
 scm_version_options = {
         'write_to': 'src/retropass/version.py',
