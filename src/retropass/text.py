@@ -37,7 +37,7 @@ def load(name, f):
     return ci
 
 
-@lru_cache
+@lru_cache()
 def lookup(name):
     """ Look up a text codec by name
 
