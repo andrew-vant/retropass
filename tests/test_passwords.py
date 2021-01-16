@@ -160,3 +160,44 @@ class TestMM2(TestCase):
         for boss in pw.bosses:
             self.assertTrue(pw[boss])
         self.assertEqual(text, str(pw))
+
+
+class TestMM3(TestCase):
+    def setUp(self):
+        self.make = partial(Password.make, 'mm3')
+        self.default = self.make()
+
+    def test_load_known_password_1(self):
+        # Starting state. No tanks, no bosses defeated
+        text = 'C5'
+        pw = self.make(text)
+        self.assertEqual(pw.tanks, 0)
+        self.assertFalse(any(pw.defeated.values()))
+        self.assertEqual(text, str(pw))
+
+    def test_load_known_password_2(self):
+        text = "B:A1 B:A3 B:B2 B:B5 B:D3 B:F4 A6 E1"
+        pw = self.make(text)
+        print(pw.defeated)
+        self.assertEqual(pw.tanks, 9)
+        self.assertTrue(all(pw.defeated.values()))
+        self.assertEqual(text, str(pw))
+
+    def test_load_mixed_password(self):
+        text = 'B:A3 R:F4 C1 F5'
+        pw = self.make(text)
+        self.assertEqual(pw.tanks, 5)
+        self.assertTrue(pw.defeated['topman'])
+        self.assertTrue(pw.defeated['snakeman'])
+        self.assertTrue(pw.defeated['sparkman'])
+        self.assertTrue(pw.defeated['magnetman'])
+        self.assertEqual(str(pw), text)
+
+    def test_create_password(self):
+        pw = self.make()
+        pw.defeated['topman'] = True
+        pw.defeated['snakeman'] = True
+        pw.defeated['sparkman'] = True
+        pw.defeated['magnetman'] = True
+        pw.tanks = 5
+        self.assertEqual(str(pw), 'B:A3 R:F4 C1 F5')

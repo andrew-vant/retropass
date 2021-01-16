@@ -443,3 +443,113 @@ class MM2Password(Password):
             self.tanks = v
         else:
             self.defeated[k] = v
+
+
+class MM3BossPair:
+    def __init__(self, boss1, boss2, cell1, cell2, **kwargs):
+        self.boss1 = boss1
+        self.boss2 = boss2
+        self.cell1 = cell1
+        self.cell2 = cell2
+
+class MM3Password(Password):
+    gid = 'mm3'
+    bosses = [MM3BossPair(**record) for record
+              in readtsv(f'{libroot}/game/mm3.tsv')]
+
+    # FIXME: All constants should be defined in an external file, I'm just not
+    # sure where...
+    breakcell = 'E1'
+    tankcells = {0: 'C5',
+                 1: 'E6',
+                 2: 'E4',
+                 3: 'B4',
+                 4: 'A5',
+                 5: 'C1',
+                 6: 'D2',
+                 7: 'C3',
+                 8: 'F2',
+                 9: 'A6'}
+
+    def __init__(self, password=None):
+        self.tanks = 0
+        self.defeated = {}
+        for pair in self.bosses:
+            self.defeated[pair.boss1] = False
+            self.defeated[pair.boss2] = False
+        self.defeated['breakman'] = False
+
+        if password:
+            self._load_password(password)
+        self._initialized = True
+
+    def _load_password(self, password):
+        cells = set(password.split())
+
+        for ct, cell in self.tankcells.items():
+            cellstrings = [cell, f'R:{cell}', f'B:{cell}']
+            if any(cell in cells for cell in cellstrings):
+                self.tanks = ct
+
+        for pair in self.bosses:
+            b2_defeated = [pair.cell2, 'R:{pair.cell2}', 'B:{pair.cell2}']
+            if f'B:{pair.cell1}' in cells:
+                self.defeated[pair.boss1] = True
+                self.defeated[pair.boss2] = True
+            elif f'R:{pair.cell1}' in cells:
+                self.defeated[pair.boss1] = True
+            elif any(cell in cells for cell in b2_defeated):
+                self.defeated[pair.boss2] = True
+
+        bc = self.breakcell  # Convenience alias
+        self.defeated['breakman'] = any(cell in cells for cell in
+                                        [bc, f'R:{bc}', 'B:{bc}'])
+
+        # FIXME: validate that password represents a valid state, i.e. no
+        # late-game bosses beat before earlier-game bosses
+
+
+
+    def __str__(self):
+        blue = []
+        red = []
+        either = []
+
+        either.append(self.tankcells[self.tanks])
+
+        for pair in self.bosses:
+            if self.defeated[pair.boss1] and self.defeated[pair.boss2]:
+                blue.append('B:' + pair.cell1)
+            elif self.defeated[pair.boss1]:
+                red.append('R:' + pair.cell1)
+            elif self.defeated[pair.boss2]:
+                either.append(pair.cell2)
+
+        if self.defeated['breakman']:
+            either.append(self.breakcell)
+
+        cells = sorted(blue) + sorted(red) + sorted(either)
+        return ' '.join(cells)
+
+    def __len__(self):
+        return len(self.defeated) + 1
+
+    def __eq__(self, other):
+        return self.tanks == other.tanks and self.defeated == other.defeated
+
+    def __iter__(self):
+        yield 'tanks'
+        yield from self.defeated.keys()
+
+    def __getitem__(self, k):
+        if k == 'tanks':
+            return self.tanks
+        else:
+            return self.defeated[k]
+
+    def __setitem__(self, k, v):
+        v = int(v)
+        if k == 'tanks':
+            self.tanks = v
+        else:
+            self.defeated[k] = v
