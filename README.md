@@ -22,6 +22,7 @@ Still beta. CLI and API details are subject to change. The following
 games are supported (so far):
 
 * Mega Man 2
+* Mega Man 3
 * Metroid
 * Kid Icarus
 * Solar Jetman
